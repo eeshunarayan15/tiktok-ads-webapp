@@ -130,25 +130,19 @@ export function handleOAuthCallback(code: string, state: string) {
                 };
             } else {
                 // Real API calls...
-                const tokenResponse = await fetch(
-                    "https://business-api.tiktok.com/open_api/v1.3/oauth2/access_token/",
-                    {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            app_id: import.meta.env.VITE_TIKTOK_APP_ID,
-                            secret: import.meta.env.VITE_TIKTOK_APP_SECRET,
-                            auth_code: code
-                        }),
-                    }
-                );
+                const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8787";
+                const tokenResponse = await fetch(`${backendUrl}/oauth/token`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ code }),
+                });
 
                 const tokenData = await tokenResponse.json();
-                if (tokenData.code !== 0) {
-                    throw new Error(tokenData.message);
+                if (!tokenResponse.ok || tokenData.code) {
+                    throw new Error(tokenData.message || "Token exchange failed");
                 }
 
-                accessToken = tokenData.data.access_token;
+                accessToken = tokenData.access_token;
 
                 const userResponse = await fetch(
                     "https://business-api.tiktok.com/open_api/v1.3/advertiser/info/",
