@@ -1,6 +1,6 @@
 # TikTok Ads Creative Flow - OAuth Integration
 
-A production-ready frontend application demonstrating TikTok Ads API integration with OAuth authentication, conditional form validation, and comprehensive error handling.
+A production-ready frontend application demonstrating TikTok Ads API integration with OAuth authentication, conditional form validation, and comprehensive error handling. A minimal Node backend is included for secure OAuth token exchange.
 
 ## 🎯 Assignment Completion
 
@@ -31,8 +31,12 @@ cp sample.env .env
 # Edit .env and set:
 VITE_API_MODE=mock
 VITE_TIKTOK_APP_ID=test_app_id
-VITE_TIKTOK_APP_SECRET=test_secret
+TIKTOK_APP_ID=test_app_id
+TIKTOK_APP_SECRET=test_secret
 VITE_REDIRECT_URI=http://localhost:5173/auth/callback
+
+# Run minimal OAuth backend (separate terminal)
+npm run server
 
 # Run development server
 npm run dev
@@ -56,9 +60,13 @@ Edit `.env`:
 ```env
 VITE_API_MODE=real
 VITE_TIKTOK_APP_ID=your_app_id_here
-VITE_TIKTOK_APP_SECRET=your_secret_here
+TIKTOK_APP_ID=your_app_id_here
+TIKTOK_APP_SECRET=your_secret_here
 VITE_REDIRECT_URI=http://localhost:5173/auth/callback
 VITE_API_BASE_URL=https://business-api.tiktok.com
+VITE_BACKEND_URL=http://localhost:8787
+BACKEND_PORT=8787
+BACKEND_ALLOWED_ORIGIN=http://localhost:5173
 ```
 
 ## 🧪 Testing Guide
@@ -199,10 +207,10 @@ dispatch(validateMusicId(musicId))
 ### Security Considerations
 ⚠️ **Current Implementation (Demo):**
 - Tokens stored in localStorage
-- Client-side OAuth token exchange
+- Minimal backend for OAuth token exchange
 
 ✅ **Production Recommendations:**
-- Move token exchange to backend
+- Use a dedicated OAuth backend with secret rotation
 - Use httpOnly cookies
 - Implement refresh token rotation
 - Add CORS protection
@@ -267,7 +275,7 @@ Auto-reset to new form
 ## 🚢 Production Checklist
 
 If deploying to production, implement:
-- [ ] Backend OAuth token exchange
+- [ ] Harden OAuth backend (rate limiting, secrets management, monitoring)
 - [ ] HttpOnly cookie storage
 - [ ] Rate limiting on API calls
 - [ ] Error logging (Sentry, etc.)

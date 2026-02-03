@@ -3,8 +3,8 @@ import type { OAuthTokens, ApiError } from "../types/tiktok";
 import { OAUTH_CONFIG } from "../utils/constants";
 
 const APP_ID = import.meta.env.VITE_TIKTOK_APP_ID;
-const APP_SECRET = import.meta.env.VITE_TIKTOK_APP_SECRET;
 const REDIRECT_URI = import.meta.env.VITE_REDIRECT_URI;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8787";
 
 /**
  * Initiates the OAuth flow by redirecting to TikTok's authorization page
@@ -63,25 +63,17 @@ export async function handleOAuthCallback(
  * NOTE: In production, this should be done server-side to keep the secret secure
  */
 async function exchangeCodeForTokens(code: string): Promise<OAuthTokens> {
-  const params = new URLSearchParams({
-    app_id: APP_ID,
-    secret: APP_SECRET,
-    auth_code: code,
-  });
-
-  const response = await fetch(
-    `${OAUTH_CONFIG.tokenUrl}?${params.toString()}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+  const response = await fetch(`${BACKEND_URL}/oauth/token`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
-  );
+    body: JSON.stringify({ code }),
+  });
 
   const data = await response.json();
 
-  if (!response.ok || data.code !== 0) {
+  if (!response.ok || data.code) {
     const error: ApiError = {
       code: data.code?.toString() || "token_exchange_failed",
       message: data.message || "Failed to exchange code for tokens",
@@ -90,7 +82,11 @@ async function exchangeCodeForTokens(code: string): Promise<OAuthTokens> {
     throw error;
   }
 
-  return data.data;
+  return {
+    accessToken: data.access_token,
+    refreshToken: data.refresh_token,
+    expires_in: data.expires_in,
+  };
 }
 
 /**
