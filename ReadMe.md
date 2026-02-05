@@ -179,6 +179,3 @@ VITE_API_MODE=mock
 - Add refresh token rotation
 - Enable CORS protection
 
-## 📄 License
-
-MIT
